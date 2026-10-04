@@ -59,8 +59,8 @@ function readCentralDirectory(bytes) {
 async function inflate(compressedBytes) {
   const decompressor = new DecompressionStream("deflate-raw");
   const writer = decompressor.writable.getWriter();
-  await writer.write(compressedBytes);
-  await writer.close();
+  // Not awaited: writes block on backpressure until the readable side is drained below.
+  writer.write(compressedBytes).then(() => writer.close()).catch(() => {});
 
   const reader = decompressor.readable.getReader();
   const chunks = [];
