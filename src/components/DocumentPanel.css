@@ -1,5 +1,11 @@
 .document-panel {
-  background: var(--bg-surface);
+  --viewer-bg: #0f1115;
+  --viewer-text: #e8eaed;
+  --viewer-font-size: 17px;
+  --viewer-contrast: 105%;
+  background: var(--viewer-bg);
+  color: var(--viewer-text);
+  font-size: var(--viewer-font-size);
   border-radius: var(--radius-sm);
   box-shadow: 0 12px 34px rgba(0, 0, 0, 0.38);
   margin: 24px auto 42px;
@@ -23,4 +29,29 @@
 .document-error {
   color: var(--text-muted);
   font-style: italic;
+}
+
+/* Original: the source document look, light page. */
+.document-panel[data-mode="original"] {
+  background: #ffffff;
+  color: #1a1a1a;
+}
+
+/* Smart: user-chosen colours, contrast applied. */
+.document-panel[data-mode="smart"] {
+  filter: contrast(var(--viewer-contrast));
+}
+
+/* Invert: light page inverted, as in the extension. */
+.document-panel[data-mode="invert"] {
+  background: #ffffff;
+  color: #1a1a1a;
+  filter: invert(1) hue-rotate(180deg) contrast(var(--viewer-contrast));
+}
+
+/* Sepia: warm dark palette. */
+.document-panel[data-mode="sepia"] {
+  background: #241e17;
+  color: #f0ddc1;
+  filter: contrast(var(--viewer-contrast));
 }

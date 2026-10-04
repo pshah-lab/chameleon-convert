@@ -4,7 +4,7 @@ import { parseDocxDocument } from "../lib/docxParser.js";
 import { parsePptxPresentation } from "../lib/pptxParser.js";
 import "./DocumentPanel.css";
 
-export default function DocumentPanel({ kind, file }) {
+export default function DocumentPanel({ kind, file, settings }) {
   const [state, setState] = useState({ status: "loading" });
 
   useEffect(() => {
@@ -51,8 +51,8 @@ export default function DocumentPanel({ kind, file }) {
   if (state.status === "loading") return <p>Loading…</p>;
   if (state.status === "error") return <p className="document-error">{state.message}</p>;
 
-  if (state.kind === "docx") return <DocxView result={state.result} />;
-  return <PptxView result={state.result} />;
+  if (state.kind === "docx") return <DocxView result={state.result} settings={settings} />;
+  return <PptxView result={state.result} settings={settings} />;
 }
 
 function Runs({ runs }) {
@@ -64,7 +64,7 @@ function Runs({ runs }) {
   });
 }
 
-function DocxView({ result }) {
+function DocxView({ result, settings }) {
   const elements = [];
   let currentListItems = null;
 
@@ -98,7 +98,7 @@ function DocxView({ result }) {
   });
 
   return (
-    <article className="document-panel">
+    <article className="document-panel" {...panelProps(settings)}>
       {elements}
       {result.truncated && (
         <p className="truncation-notice">
@@ -109,9 +109,9 @@ function DocxView({ result }) {
   );
 }
 
-function PptxView({ result }) {
+function PptxView({ result, settings }) {
   return (
-    <article className="document-panel">
+    <article className="document-panel" {...panelProps(settings)}>
       {result.slides.map((slide) => (
         <section className="pptx-slide" key={slide.number}>
           <div className="pptx-slide-label">Slide {slide.number}</div>
@@ -129,4 +129,17 @@ function PptxView({ result }) {
       )}
     </article>
   );
+}
+
+function panelProps(settings) {
+  if (!settings) return {};
+  return {
+    "data-mode": settings.mode,
+    style: {
+      "--viewer-bg": settings.backgroundColor,
+      "--viewer-text": settings.textColor,
+      "--viewer-font-size": `${settings.fontSize}px`,
+      "--viewer-contrast": `${settings.contrast}%`,
+    },
+  };
 }

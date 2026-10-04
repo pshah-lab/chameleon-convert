@@ -1,6 +1,7 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import { describe, it, expect } from "vitest";
 import DocumentPanel from "./DocumentPanel";
+import { DEFAULT_SETTINGS } from "../lib/settings.js";
 
 // A docx is a ZIP containing word/document.xml. We build one in-memory
 // using CompressionStream so the test doesn't depend on a binary fixture
@@ -98,11 +99,32 @@ describe("DocumentPanel", () => {
       "</w:body></w:document>";
     const file = await makeDocxFile(xml);
 
-    render(<DocumentPanel kind="docx" file={file} />);
+    render(<DocumentPanel kind="docx" file={file} settings={DEFAULT_SETTINGS} />);
 
     await waitFor(() => {
       expect(screen.getByRole("heading", { name: "Hello" })).toBeInTheDocument();
       expect(screen.getByText("World")).toBeInTheDocument();
     });
+  });
+
+  it("drives the panel with CSS variables and data-mode from settings", async () => {
+    const xml =
+      '<w:document xmlns:w="x"><w:body><w:p><w:r><w:t>Body</w:t></w:r></w:p></w:body></w:document>';
+    const file = await makeDocxFile(xml);
+    const settings = {
+      mode: "sepia",
+      backgroundColor: "#112233",
+      textColor: "#aabbcc",
+      fontSize: 20,
+      contrast: 120,
+    };
+    const { container } = render(<DocumentPanel kind="docx" file={file} settings={settings} />);
+    await waitFor(() => expect(screen.getByText("Body")).toBeInTheDocument());
+    const panel = container.querySelector(".document-panel");
+    expect(panel).toHaveAttribute("data-mode", "sepia");
+    expect(panel.style.getPropertyValue("--viewer-bg")).toBe("#112233");
+    expect(panel.style.getPropertyValue("--viewer-text")).toBe("#aabbcc");
+    expect(panel.style.getPropertyValue("--viewer-font-size")).toBe("20px");
+    expect(panel.style.getPropertyValue("--viewer-contrast")).toBe("120%");
   });
 });

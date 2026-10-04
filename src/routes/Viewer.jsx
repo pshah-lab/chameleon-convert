@@ -64,7 +64,7 @@ export default function Viewer() {
       {file && kind === "pdf" && <PdfPageCanvas file={file} settings={settings} />}
 
       {file && (kind === "docx" || kind === "pptx") && (
-        <DocumentPanel kind={kind} file={file} />
+        <DocumentPanel kind={kind} file={file} settings={settings} />
       )}
 
       {file && kind === "unsupported" && (
