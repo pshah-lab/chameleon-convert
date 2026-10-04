@@ -2,78 +2,160 @@ import { useEffect, useRef, useState } from "react";
 import pdfjsLib from "../lib/pdfjsSetup.js";
 import { getPdfPageColors, transformPdfCanvas } from "../lib/pdfRender.js";
 
+const RERENDER_DEBOUNCE_MS = 150;
+
 export default function PdfPageCanvas({ file, settings }) {
   const containerRef = useRef(null);
+  const [pdf, setPdf] = useState(null);
   const [error, setError] = useState(null);
-  const generationRef = useRef(0);
+  const [renderSettings, setRenderSettings] = useState(settings);
 
+  const { mode, backgroundColor, textColor, fontSize, contrast } = settings;
+
+  // Debounce settings changes (e.g. slider drags) before re-rendering pages.
+  useEffect(() => {
+    const next = { mode, backgroundColor, textColor, fontSize, contrast };
+    const timer = setTimeout(() => setRenderSettings(next), RERENDER_DEBOUNCE_MS);
+    return () => clearTimeout(timer);
+  }, [mode, backgroundColor, textColor, fontSize, contrast]);
+
+  // Load and parse the document once per file.
   useEffect(() => {
     let cancelled = false;
-    const generation = ++generationRef.current;
+    let loaded = null;
+    setPdf(null);
     setError(null);
 
-    async function renderAllPages() {
+    (async () => {
       try {
         const buffer = await readFileBuffer(file);
-        const pdf = await pdfjsLib.getDocument({ data: buffer }).promise;
-        if (cancelled || generation !== generationRef.current) return;
-
-        const container = containerRef.current;
-        if (container) container.replaceChildren();
-
-        for (let pageNumber = 1; pageNumber <= pdf.numPages; pageNumber++) {
-          if (cancelled || generation !== generationRef.current) return;
-          await renderPage(pdf, pageNumber, container, settings, generation, generationRef);
+        const doc = await pdfjsLib.getDocument({ data: buffer }).promise;
+        loaded = doc;
+        if (cancelled) {
+          destroyPdf(doc);
+          return;
         }
+        setPdf(doc);
       } catch {
-        if (!cancelled && generation === generationRef.current) {
+        if (!cancelled) {
           setError("Couldn't load this PDF — it may be corrupted or password-protected.");
         }
       }
-    }
-
-    renderAllPages();
+    })();
 
     return () => {
       cancelled = true;
+      if (loaded) destroyPdf(loaded);
     };
-  }, [file, settings]);
+  }, [file]);
+
+  // Re-render pages whenever the document or (debounced) settings change.
+  useEffect(() => {
+    if (!pdf) return undefined;
+    let cancelled = false;
+    const activeTasks = new Set();
+
+    (async () => {
+      try {
+        const fragment = document.createDocumentFragment();
+        for (let pageNumber = 1; pageNumber <= pdf.numPages; pageNumber++) {
+          if (cancelled) return;
+          await renderPage(pdf, pageNumber, fragment, renderSettings, activeTasks, () => cancelled);
+        }
+        if (cancelled) return;
+        containerRef.current?.replaceChildren(fragment);
+      } catch {
+        if (!cancelled) {
+          setError("Couldn't load this PDF — it may be corrupted or password-protected.");
+        }
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+      for (const task of activeTasks) {
+        try {
+          task.cancel();
+        } catch {
+          // already finished
+        }
+      }
+    };
+  }, [pdf, renderSettings]);
 
   if (error) {
-    return <p className="pdf-error">{error}</p>;
+    return (
+      <p className="pdf-error" role="alert">
+        {error}
+      </p>
+    );
   }
 
-  return <div ref={containerRef} data-testid="pdf-pages" />;
+  return (
+    <>
+      {!pdf && <p role="status">Loading…</p>}
+      <div ref={containerRef} data-testid="pdf-pages" />
+    </>
+  );
 }
 
-async function renderPage(pdf, pageNumber, container, settings, generation, generationRef) {
-  const page = await pdf.getPage(pageNumber);
-  if (generation !== generationRef.current) return;
+// pdf.js v6's PDFDocumentProxy has no destroy(); it lives on the loading task.
+function destroyPdf(doc) {
+  const target = doc.loadingTask ?? doc;
+  try {
+    target.destroy();
+  } catch {
+    // already destroyed
+  }
+}
 
-  const viewport = page.getViewport({ scale: 1.2 });
+function getPageScale(settings) {
+  return 1.2 * (settings.fontSize / 17);
+}
+
+function getPdfOutputScale() {
+  return window.devicePixelRatio || 1;
+}
+
+async function renderPage(pdf, pageNumber, target, settings, activeTasks, isCancelled) {
+  const page = await pdf.getPage(pageNumber);
+  if (isCancelled()) return;
+
+  const scale = getPageScale(settings);
+  const outputScale = getPdfOutputScale();
+  const cssViewport = page.getViewport({ scale });
+  const viewport = page.getViewport({ scale: scale * outputScale });
+
   const canvas = document.createElement("canvas");
-  canvas.width = viewport.width;
-  canvas.height = viewport.height;
+  canvas.width = Math.floor(viewport.width);
+  canvas.height = Math.floor(viewport.height);
+  canvas.style.width = `${cssViewport.width}px`;
+  canvas.style.height = `${cssViewport.height}px`;
   canvas.setAttribute("data-testid", "pdf-page-canvas");
   const context = canvas.getContext("2d", { willReadFrequently: true });
 
   if (!context) {
     // No 2D canvas support (e.g. jsdom): keep the page slot but skip drawing.
-    if (container) container.appendChild(canvas);
+    target.appendChild(canvas);
     return;
   }
 
-  await page.render({
+  const task = page.render({
     canvasContext: context,
     viewport,
     background: "rgb(255, 255, 255)",
     pageColors: getPdfPageColors(settings),
-  }).promise;
+  });
+  activeTasks.add(task);
+  try {
+    await task.promise;
+  } finally {
+    activeTasks.delete(task);
+  }
 
-  if (generation !== generationRef.current) return;
+  if (isCancelled()) return;
   transformPdfCanvas(canvas, settings);
-
-  if (container) container.appendChild(canvas);
+  target.appendChild(canvas);
 }
 
 // Blob.prototype.arrayBuffer is missing in some environments (e.g. jsdom).
