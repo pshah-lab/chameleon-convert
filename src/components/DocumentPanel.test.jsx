@@ -91,6 +91,13 @@ if (!Blob.prototype.arrayBuffer) {
 }
 
 describe("DocumentPanel", () => {
+  it("announces loading with role=status and errors with role=alert", async () => {
+    const bad = new File(["not a zip"], "bad.docx");
+    render(<DocumentPanel kind="docx" file={bad} settings={DEFAULT_SETTINGS} />);
+    expect(screen.getByRole("status")).toHaveTextContent(/loading/i);
+    expect(await screen.findByRole("alert")).toHaveTextContent(/couldn't read/i);
+  });
+
   it("renders a heading and paragraph from a docx file", async () => {
     const xml =
       '<w:document xmlns:w="x"><w:body>' +

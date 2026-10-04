@@ -48,8 +48,8 @@ export default function DocumentPanel({ kind, file, settings }) {
     };
   }, [kind, file]);
 
-  if (state.status === "loading") return <p>Loading…</p>;
-  if (state.status === "error") return <p className="document-error">{state.message}</p>;
+  if (state.status === "loading") return <p role="status">Loading…</p>;
+  if (state.status === "error") return <p className="document-error" role="alert">{state.message}</p>;
 
   if (state.kind === "docx") return <DocxView result={state.result} settings={settings} />;
   return <PptxView result={state.result} settings={settings} />;

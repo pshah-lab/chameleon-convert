@@ -11,7 +11,7 @@ describe("Landing", () => {
 
   it("links the live Dark Document Viewer card to /viewer", () => {
     render(<MemoryRouter><Landing /></MemoryRouter>);
-    const link = screen.getByRole("link", { name: /dark document viewer/i });
+    const link = screen.getByRole("link", { name: /^open tool: dark document viewer/i });
     expect(link).toHaveAttribute("href", "/viewer");
   });
 

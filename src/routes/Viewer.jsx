@@ -38,7 +38,8 @@ export default function Viewer() {
   }
 
   return (
-    <div className="viewer-page">
+    <main className="viewer-page">
+      <h1 className="viewer-title">Dark Document Viewer</h1>
       <Toolbar settings={settings} onChange={handleSettingsChange} />
 
       {!file && <FileDropzone onFile={handleFile} />}
@@ -70,6 +71,6 @@ export default function Viewer() {
       {file && kind === "unsupported" && (
         <p className="legacy-notice">This file type isn't supported yet.</p>
       )}
-    </div>
+    </main>
   );
 }

@@ -36,7 +36,7 @@ export default function Landing() {
             <h2>{tool.name}</h2>
             <p>{tool.description}</p>
             {tool.live ? (
-              <Link to={tool.href} className="tool-card-cta" aria-label={`Open ${tool.name}`}>
+              <Link to={tool.href} className="tool-card-cta" aria-label={`Open tool: ${tool.name}`}>
                 Open tool
               </Link>
             ) : (

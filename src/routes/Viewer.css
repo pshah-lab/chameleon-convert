@@ -2,6 +2,12 @@
   min-height: 100vh;
 }
 
+.viewer-title {
+  font-size: 1.1rem;
+  margin: 0;
+  padding: 1rem 1.5rem 0;
+}
+
 .legacy-notice {
   text-align: center;
   padding: 3rem 1.5rem;

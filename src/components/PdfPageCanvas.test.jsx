@@ -30,7 +30,7 @@ describe("PdfPageCanvas", () => {
     render(<PdfPageCanvas file={file} settings={DEFAULT_SETTINGS} />);
 
     await waitFor(() => {
-      expect(screen.getByText(/couldn't load this pdf/i)).toBeInTheDocument();
+      expect(screen.getByRole("alert")).toHaveTextContent(/couldn't load this pdf/i);
     }, { timeout: 5000 });
   });
 });

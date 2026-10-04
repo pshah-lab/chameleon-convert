@@ -33,6 +33,12 @@ describe("Viewer", () => {
     expect(screen.getByTestId("pdf-pages")).toBeInTheDocument();
   });
 
+  it("wraps content in a main landmark with an h1", () => {
+    render(<Viewer />);
+    expect(screen.getByRole("main")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { level: 1 })).toBeInTheDocument();
+  });
+
   it("lets the user open another file after one is loaded", () => {
     render(<Viewer />);
     const file = new File(["x"], "legacy.doc", { type: "application/msword" });
