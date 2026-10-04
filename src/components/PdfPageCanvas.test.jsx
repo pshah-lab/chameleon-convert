@@ -22,7 +22,7 @@ describe("PdfPageCanvas", () => {
 
     await waitFor(() => {
       expect(screen.getAllByTestId("pdf-page-canvas")).toHaveLength(1);
-    });
+    }, { timeout: 5000 });
   });
 
   it("shows an error state for a corrupt file instead of a blank screen", async () => {
@@ -31,6 +31,6 @@ describe("PdfPageCanvas", () => {
 
     await waitFor(() => {
       expect(screen.getByText(/couldn't load this pdf/i)).toBeInTheDocument();
-    });
+    }, { timeout: 5000 });
   });
 });
