@@ -1,0 +1,61 @@
+.landing-hero {
+  text-align: center;
+  padding: 4rem 1.5rem 2rem;
+}
+
+.landing-hero h1 {
+  font-size: clamp(2rem, 5vw, 3rem);
+  margin: 0 0 0.75rem;
+}
+
+.landing-hero p {
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+.landing-tools {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 1.5rem;
+  max-width: var(--container-max);
+  margin: 0 auto;
+  padding: 0 1.5rem 4rem;
+}
+
+.tool-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 1.75rem;
+}
+
+.tool-card h2 {
+  margin: 0 0 0.5rem;
+  font-size: 1.15rem;
+}
+
+.tool-card p {
+  color: var(--text-secondary);
+  margin: 0 0 1.25rem;
+}
+
+.tool-card-cta {
+  display: inline-block;
+  padding: 0.6rem 1.25rem;
+  border-radius: var(--radius-full);
+  background: linear-gradient(135deg, var(--accent-primary), var(--accent-primary-hover));
+  color: #fff;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.tool-card-badge {
+  display: inline-block;
+  padding: 0.3rem 0.8rem;
+  border-radius: var(--radius-full);
+  background: rgba(251, 146, 60, 0.16);
+  color: var(--chameleon-orange);
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
