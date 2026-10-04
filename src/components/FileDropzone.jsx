@@ -2,7 +2,7 @@ import { useRef } from "react";
 import "./FileDropzone.css";
 
 const ACCEPT =
-  ".pdf,.txt,.md,.markdown,.rtf,.docx,.pptx,.doc,.ppt,application/pdf,text/plain,text/markdown,application/rtf,text/rtf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.openxmlformats-officedocument.presentationml.presentation,application/msword,application/vnd.ms-powerpoint";
+  ".pdf,.docx,.pptx,.doc,.ppt,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.openxmlformats-officedocument.presentationml.presentation,application/msword,application/vnd.ms-powerpoint";
 
 export default function FileDropzone({ onFile }) {
   const inputRef = useRef(null);

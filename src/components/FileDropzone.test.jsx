@@ -40,4 +40,15 @@ describe("FileDropzone", () => {
 
     expect(onFile).not.toHaveBeenCalled();
   });
+
+  it("only accepts file types the viewer handles", () => {
+    render(<FileDropzone onFile={vi.fn()} />);
+    const accept = screen.getByTestId("file-input").getAttribute("accept");
+    for (const ext of [".pdf", ".docx", ".pptx", ".doc", ".ppt"]) {
+      expect(accept).toContain(ext);
+    }
+    for (const bad of [".txt", ".md", ".markdown", ".rtf", "text/"]) {
+      expect(accept).not.toContain(bad);
+    }
+  });
 });
