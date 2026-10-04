@@ -34,7 +34,7 @@ function transformSmartPixel(pixel, { background, text, contrast }) {
   const hsl = rgbToHsl(pixel);
   const luminance = getRelativeLuminance(pixel);
 
-  if (hsl.s > 0.32 && luminance > 0.15 && luminance < 0.88) {
+  if (hsl.s > 0.32 && luminance > 0.18 && luminance < 0.88) {
     return applyContrast(dimColor(pixel, 0.82), contrast);
   }
 

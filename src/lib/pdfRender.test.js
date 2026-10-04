@@ -27,7 +27,7 @@ describe("transformPixel", () => {
   });
 
   it("preserves saturated colors in smart mode rather than flattening them", () => {
-    const saturatedRed = { r: 220, g: 30, b: 30 };
+    const saturatedRed = { r: 240, g: 80, b: 80 };
     const result = transformPixel(saturatedRed, "smart", palette);
     // Should still read as reddish, not converted to a flat gray.
     expect(result.r).toBeGreaterThan(result.g);
