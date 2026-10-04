@@ -32,4 +32,14 @@ describe("Viewer", () => {
     fireEvent.change(screen.getByTestId("file-input"), { target: { files: [file] } });
     expect(screen.getByTestId("pdf-pages")).toBeInTheDocument();
   });
+
+  it("lets the user open another file after one is loaded", () => {
+    render(<Viewer />);
+    const file = new File(["x"], "legacy.doc", { type: "application/msword" });
+    fireEvent.change(screen.getByTestId("file-input"), { target: { files: [file] } });
+    expect(screen.queryByTestId("dropzone")).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: /open another file/i }));
+    expect(screen.getByTestId("dropzone")).toBeInTheDocument();
+    expect(screen.queryByText(/convert.*\.docx.*first/i)).not.toBeInTheDocument();
+  });
 });

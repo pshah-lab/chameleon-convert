@@ -32,11 +32,22 @@ export default function Viewer() {
     setKind(detectKind(newFile));
   }
 
+  function handleReset() {
+    setFile(null);
+    setKind(null);
+  }
+
   return (
     <div className="viewer-page">
       <Toolbar settings={settings} onChange={handleSettingsChange} />
 
       {!file && <FileDropzone onFile={handleFile} />}
+
+      {file && (
+        <button type="button" className="open-another" onClick={handleReset}>
+          Open another file
+        </button>
+      )}
 
       {file && kind === "legacy-doc" && (
         <p className="legacy-notice">
