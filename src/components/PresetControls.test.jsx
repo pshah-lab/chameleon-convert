@@ -147,4 +147,13 @@ describe("PresetControls", () => {
     expect(screen.getByRole("alert")).toHaveTextContent("That preset no longer exists.");
     expect(screen.queryByRole("option", { name: "Ghost" })).toBeNull();
   });
+
+  it("moves focus to the preset select after a successful delete", () => {
+    setup();
+    save("Doomed");
+    vi.spyOn(window, "confirm").mockReturnValue(true);
+    fireEvent.click(screen.getByRole("button", { name: "Delete" }));
+    expect(screen.queryByRole("option", { name: "Doomed" })).toBeNull();
+    expect(document.activeElement).toBe(screen.getByLabelText("Preset"));
+  });
 });

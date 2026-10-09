@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import {
   listPresets,
   saveCustomPreset,
@@ -18,6 +18,7 @@ export default function PresetControls({ settings, onChange }) {
   const [presets, setPresets] = useState(() => listPresets());
   const [selectedId, setSelectedId] = useState("");
   const [message, setMessage] = useState("");
+  const selectRef = useRef(null);
 
   const chosen = presets.find((preset) => preset.id === selectedId);
   const matches =
@@ -68,12 +69,13 @@ export default function PresetControls({ settings, onChange }) {
     setMessage("");
     setSelectedId("");
     refresh();
+    selectRef.current?.focus();
   };
 
   return (
     <div className="text-style-panel__field text-style-panel__presets">
       <label htmlFor="ts-preset">Preset</label>
-      <select id="ts-preset" value={selected ? selected.id : ""} onChange={choose}>
+      <select id="ts-preset" ref={selectRef} value={selected ? selected.id : ""} onChange={choose}>
         <option value="" disabled>
           Choose a preset…
         </option>
