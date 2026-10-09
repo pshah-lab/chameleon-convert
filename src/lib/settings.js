@@ -6,7 +6,14 @@ export const DEFAULT_SETTINGS = {
   textColor: "#e8eaed",
   fontSize: 17,
   contrast: 105,
+  fontFamily: "system-sans",
+  lineHeight: 1.6,
+  paragraphSpacing: 1,
+  textWidth: 72,
 };
+
+export const FONT_FAMILY_IDS = ["system-sans", "system-serif", "system-mono", "atkinson"];
+export const TEXT_STYLE_KEYS = ["fontFamily", "fontSize", "lineHeight", "paragraphSpacing", "textWidth"];
 
 const VALID_MODES = new Set(["smart", "invert", "sepia", "original"]);
 const COLOR_RE = /^#[0-9a-f]{6}$/i;
@@ -29,6 +36,13 @@ export function normalizeSettings(settings = {}) {
     textColor: normalizeColor(source.textColor, DEFAULT_SETTINGS.textColor),
     fontSize: clampNumber(source.fontSize, 14, 24, DEFAULT_SETTINGS.fontSize),
     contrast: clampNumber(source.contrast, 80, 135, DEFAULT_SETTINGS.contrast),
+    fontFamily: FONT_FAMILY_IDS.includes(source.fontFamily) ? source.fontFamily : DEFAULT_SETTINGS.fontFamily,
+    lineHeight: clampNumber(source.lineHeight, 1.3, 2.2, DEFAULT_SETTINGS.lineHeight),
+    paragraphSpacing: clampNumber(source.paragraphSpacing, 0.5, 2, DEFAULT_SETTINGS.paragraphSpacing),
+    textWidth:
+      source.textWidth === "full"
+        ? "full"
+        : clampNumber(source.textWidth, 45, 100, DEFAULT_SETTINGS.textWidth),
   };
 }
 
