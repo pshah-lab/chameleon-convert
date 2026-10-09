@@ -40,7 +40,11 @@ export default function Viewer() {
   return (
     <main className="viewer-page">
       <h1 className="viewer-title">Dark Document Viewer</h1>
-      <Toolbar settings={settings} onChange={handleSettingsChange} />
+      <Toolbar
+        settings={settings}
+        onChange={handleSettingsChange}
+        isPdf={kind === "pdf"}
+      />
 
       {!file && <FileDropzone onFile={handleFile} />}
 

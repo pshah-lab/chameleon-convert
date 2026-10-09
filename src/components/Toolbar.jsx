@@ -1,7 +1,20 @@
+import { useRef, useState } from "react";
+import TextStylePanel from "./TextStylePanel.jsx";
 import "./Toolbar.css";
 
-export default function Toolbar({ settings, onChange }) {
+export default function Toolbar({ settings, onChange, isPdf = false }) {
+  const [open, setOpen] = useState(false);
+  const buttonRef = useRef(null);
+
+  function handleKeyDown(event) {
+    if (event.key === "Escape" && open) {
+      setOpen(false);
+      buttonRef.current?.focus();
+    }
+  }
+
   return (
+    <div className="toolbar-wrap" onKeyDown={handleKeyDown}>
     <div className="toolbar">
       <label>
         Mode
@@ -35,17 +48,6 @@ export default function Toolbar({ settings, onChange }) {
       </label>
 
       <label>
-        Size
-        <input
-          type="range"
-          min="14"
-          max="24"
-          value={settings.fontSize}
-          onChange={(event) => onChange({ fontSize: Number(event.target.value) })}
-        />
-      </label>
-
-      <label>
         Contrast
         <input
           type="range"
@@ -55,6 +57,23 @@ export default function Toolbar({ settings, onChange }) {
           onChange={(event) => onChange({ contrast: Number(event.target.value) })}
         />
       </label>
+
+      <button
+        type="button"
+        ref={buttonRef}
+        className="toolbar-toggle"
+        aria-expanded={open}
+        aria-controls="text-style-panel"
+        onClick={() => setOpen((value) => !value)}
+      >
+        Text style
+      </button>
+    </div>
+    {open && (
+      <div id="text-style-panel" className="toolbar-panel">
+        <TextStylePanel settings={settings} onChange={onChange} isPdf={isPdf} />
+      </div>
+    )}
     </div>
   );
 }
