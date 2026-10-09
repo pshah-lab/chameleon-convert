@@ -67,7 +67,9 @@ describe("PresetControls", () => {
     fireEvent.click(screen.getByRole("button", { name: "Rename" }));
     expect(screen.getByRole("option", { name: "Second" })).toBeInTheDocument();
     expect(screen.queryByRole("option", { name: "First" })).toBeNull();
+    const confirm = vi.spyOn(window, "confirm").mockReturnValue(true);
     fireEvent.click(screen.getByRole("button", { name: "Delete" }));
+    expect(confirm).toHaveBeenCalledWith('Delete "Second"?');
     expect(screen.queryByRole("option", { name: "Second" })).toBeNull();
     expect(screen.queryByRole("button", { name: "Delete" })).toBeNull();
   });
@@ -155,5 +157,14 @@ describe("PresetControls", () => {
     fireEvent.click(screen.getByRole("button", { name: "Delete" }));
     expect(screen.queryByRole("option", { name: "Doomed" })).toBeNull();
     expect(document.activeElement).toBe(screen.getByLabelText("Preset"));
+  });
+
+  it("cancelling the delete confirmation keeps the preset", () => {
+    setup();
+    save("Stay");
+    vi.spyOn(window, "confirm").mockReturnValue(false);
+    fireEvent.click(screen.getByRole("button", { name: "Delete" }));
+    expect(screen.getByRole("option", { name: "Stay" })).toBeInTheDocument();
+    expect(listPresets().some((p) => p.name === "Stay")).toBe(true);
   });
 });

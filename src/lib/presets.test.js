@@ -79,6 +79,14 @@ describe("presets", () => {
     expect(getCustomPresets()).toHaveLength(1);
   });
 
+  it("caps names at 60 characters on save and rename", () => {
+    const long = "x".repeat(70);
+    const { preset } = saveCustomPreset(`  ${long}  `, DEFAULT_SETTINGS);
+    expect(preset.name).toBe("x".repeat(60));
+    expect(renameCustomPreset(preset.id, `${"y".repeat(80)}`).ok).toBe(true);
+    expect(getCustomPresets()[0].name).toBe("y".repeat(60));
+  });
+
   it("built-in ids cannot be renamed or deleted", () => {
     const id = BUILT_IN_PRESETS[0].id;
     expect(renameCustomPreset(id, "x").ok).toBe(false);

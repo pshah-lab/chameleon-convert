@@ -84,6 +84,12 @@ function writeCustom(list) {
   }
 }
 
+export const MAX_NAME_LENGTH = 60;
+
+function cleanName(name) {
+  return typeof name === "string" ? name.trim().slice(0, MAX_NAME_LENGTH).trimEnd() : "";
+}
+
 function uniqueName(name, list, ignoreId) {
   const taken = new Set(list.filter((p) => p.id !== ignoreId).map((p) => p.name));
   if (!taken.has(name)) return name;
@@ -101,7 +107,7 @@ export function listPresets() {
 }
 
 export function saveCustomPreset(name, settings) {
-  const trimmed = typeof name === "string" ? name.trim() : "";
+  const trimmed = cleanName(name);
   if (!trimmed) return { ok: false, reason: "empty-name" };
   const list = readCustom();
   if (list.length >= MAX_CUSTOM_PRESETS) return { ok: false, reason: "limit" };
@@ -116,7 +122,7 @@ export function saveCustomPreset(name, settings) {
 }
 
 export function renameCustomPreset(id, name) {
-  const trimmed = typeof name === "string" ? name.trim() : "";
+  const trimmed = cleanName(name);
   if (!trimmed) return { ok: false, reason: "empty-name" };
   const list = readCustom();
   const target = list.find((p) => p.id === id);

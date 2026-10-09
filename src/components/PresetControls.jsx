@@ -64,6 +64,7 @@ export default function PresetControls({ settings, onChange }) {
   };
 
   const remove = () => {
+    if (!window.confirm(`Delete "${selected.name}"?`)) return;
     const result = deleteCustomPreset(selected.id);
     if (!result.ok) return fail(result);
     setMessage("");
