@@ -8,3 +8,4 @@ Standalone, 100% client-side document tools (React + Vite, plain JS, plain CSS, 
 - Tests: `npm test`. Never weaken tests or constants to make them pass.
 - Deploy: Vercel → convert.pshah.fun. The user handles all sign-ins and DNS.
 - Commits end with the Co-Authored-By line; `.superpowers/` stays untracked.
+- Browser testing gotcha: pdf.js draws via `requestAnimationFrame`, which never fires in a hidden tab. If the Claude Browser pane is hidden, PDFs look "blank" (no canvas, no error) in dev and prod alike — it is not an app bug. Verify with the pane visible, or temporarily shim `window.requestAnimationFrame = cb => setTimeout(cb, 16)` in the page before loading a PDF.
