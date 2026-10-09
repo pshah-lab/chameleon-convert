@@ -25,6 +25,12 @@ npm run dev
 npm test
 ```
 
+## Credits
+
+The "Atkinson Hyperlegible" font is by the Braille Institute of America and is
+used under the SIL Open Font License 1.1. The license text is in
+`public/fonts/Atkinson-Hyperlegible-OFL.txt`.
+
 ## License
 
 MIT
