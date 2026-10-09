@@ -112,4 +112,39 @@ describe("PresetControls", () => {
     expect(screen.queryByRole("button", { name: "Delete" })).toBeNull();
     expect(screen.queryByRole("button", { name: "Rename" })).toBeNull();
   });
+
+  it("delete with failing storage shows the alert and keeps the preset listed", () => {
+    setup();
+    save("Keep me");
+    vi.spyOn(window, "confirm").mockReturnValue(true);
+    vi.spyOn(Storage.prototype, "setItem").mockImplementation(() => {
+      throw new Error("denied");
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Delete" }));
+    expect(screen.getByRole("alert")).toHaveTextContent("Couldn't save — browser storage is unavailable.");
+    expect(screen.getByRole("option", { name: "Keep me" })).toBeInTheDocument();
+  });
+
+  it("rename of a preset deleted behind its back refreshes and clears the selection", () => {
+    setup();
+    save("Ghost");
+    const id = listPresets().find((p) => p.name === "Ghost").id;
+    localStorage.clear();
+    vi.spyOn(window, "prompt").mockReturnValue("New name");
+    fireEvent.click(screen.getByRole("button", { name: "Rename" }));
+    expect(screen.getByRole("alert")).toHaveTextContent("That preset no longer exists.");
+    expect(screen.queryByRole("option", { name: "Ghost" })).toBeNull();
+    expect(screen.getByLabelText("Preset")).toHaveDisplayValue("Choose a preset…");
+    expect(screen.getByLabelText("Preset")).not.toHaveValue(id);
+  });
+
+  it("delete of a preset removed behind its back refreshes and clears the selection", () => {
+    setup();
+    save("Ghost");
+    localStorage.clear();
+    vi.spyOn(window, "confirm").mockReturnValue(true);
+    fireEvent.click(screen.getByRole("button", { name: "Delete" }));
+    expect(screen.getByRole("alert")).toHaveTextContent("That preset no longer exists.");
+    expect(screen.queryByRole("option", { name: "Ghost" })).toBeNull();
+  });
 });

@@ -64,15 +64,25 @@ describe("presets", () => {
     expect(renameCustomPreset(preset.id, " New ").ok).toBe(true);
     expect(getCustomPresets()[0].name).toBe("New");
     expect(renameCustomPreset(preset.id, "  ")).toEqual({ ok: false, reason: "empty-name" });
-    expect(deleteCustomPreset(preset.id)).toBe(true);
+    expect(deleteCustomPreset(preset.id)).toEqual({ ok: true });
     expect(getCustomPresets()).toEqual([]);
-    expect(deleteCustomPreset(preset.id)).toBe(false);
+    expect(deleteCustomPreset(preset.id)).toEqual({ ok: false, reason: "not-found" });
+  });
+
+  it("delete reports a storage failure and keeps the preset", () => {
+    const { preset } = saveCustomPreset("Mine", DEFAULT_SETTINGS);
+    vi.spyOn(Storage.prototype, "setItem").mockImplementation(() => {
+      throw new Error("denied");
+    });
+    expect(deleteCustomPreset(preset.id)).toEqual({ ok: false, reason: "storage" });
+    vi.restoreAllMocks();
+    expect(getCustomPresets()).toHaveLength(1);
   });
 
   it("built-in ids cannot be renamed or deleted", () => {
     const id = BUILT_IN_PRESETS[0].id;
     expect(renameCustomPreset(id, "x").ok).toBe(false);
-    expect(deleteCustomPreset(id)).toBe(false);
+    expect(deleteCustomPreset(id)).toEqual({ ok: false, reason: "not-found" });
     expect(listPresets()[0].name).toBe("Night reading");
   });
 

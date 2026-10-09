@@ -27,7 +27,13 @@ export default function PresetControls({ settings, onChange }) {
   const custom = presets.filter((preset) => !preset.builtIn);
   const refresh = () => setPresets(listPresets());
 
-  const fail = (result) => setMessage(MESSAGES[result.reason] ?? MESSAGES.storage);
+  const fail = (result) => {
+    if (result.reason === "not-found") {
+      refresh();
+      setSelectedId("");
+    }
+    setMessage(MESSAGES[result.reason] ?? MESSAGES.storage);
+  };
 
   const choose = (event) => {
     const id = event.target.value;
@@ -57,7 +63,8 @@ export default function PresetControls({ settings, onChange }) {
   };
 
   const remove = () => {
-    deleteCustomPreset(selected.id);
+    const result = deleteCustomPreset(selected.id);
+    if (!result.ok) return fail(result);
     setMessage("");
     setSelectedId("");
     refresh();

@@ -128,8 +128,9 @@ export function renameCustomPreset(id, name) {
 
 export function deleteCustomPreset(id) {
   const list = readCustom();
-  if (!list.some((p) => p.id === id)) return false;
-  return writeCustom(list.filter((p) => p.id !== id));
+  if (!list.some((p) => p.id === id)) return { ok: false, reason: "not-found" };
+  if (!writeCustom(list.filter((p) => p.id !== id))) return { ok: false, reason: "storage" };
+  return { ok: true };
 }
 
 export function applyPreset(preset, current) {
