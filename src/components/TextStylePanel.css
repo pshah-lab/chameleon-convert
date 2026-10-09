@@ -66,3 +66,8 @@
   margin: 0;
   color: var(--text-error, #f28b82);
 }
+
+.text-style-panel select {
+  min-width: 0;
+  max-width: 100%;
+}
