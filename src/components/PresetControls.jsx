@@ -19,7 +19,10 @@ export default function PresetControls({ settings, onChange }) {
   const [selectedId, setSelectedId] = useState("");
   const [message, setMessage] = useState("");
 
-  const selected = presets.find((preset) => preset.id === selectedId);
+  const chosen = presets.find((preset) => preset.id === selectedId);
+  const matches =
+    chosen && Object.keys(chosen.settings).every((key) => chosen.settings[key] === settings[key]);
+  const selected = matches ? chosen : undefined;
   const builtIn = presets.filter((preset) => preset.builtIn);
   const custom = presets.filter((preset) => !preset.builtIn);
   const refresh = () => setPresets(listPresets());
@@ -63,7 +66,7 @@ export default function PresetControls({ settings, onChange }) {
   return (
     <div className="text-style-panel__field text-style-panel__presets">
       <label htmlFor="ts-preset">Preset</label>
-      <select id="ts-preset" value={selectedId} onChange={choose}>
+      <select id="ts-preset" value={selected ? selected.id : ""} onChange={choose}>
         <option value="" disabled>
           Choose a preset…
         </option>

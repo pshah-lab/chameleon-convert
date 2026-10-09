@@ -87,4 +87,29 @@ describe("PresetControls", () => {
     save("Nope");
     expect(screen.getByRole("alert")).toHaveTextContent("Couldn't save — browser storage is unavailable.");
   });
+
+  it("shows the placeholder once settings drift from the chosen preset, and re-picking fires again", () => {
+    const onChange = vi.fn();
+    const large = BUILT_IN_PRESETS.find((p) => p.id === "builtin-large-print");
+    const matching = applyPreset(large, DEFAULT_SETTINGS);
+    const { rerender } = render(<PresetControls settings={matching} onChange={onChange} />);
+    const select = screen.getByLabelText("Preset");
+    fireEvent.change(select, { target: { value: large.id } });
+    expect(onChange).toHaveBeenCalledTimes(1);
+    expect(select).toHaveValue(large.id);
+    rerender(<PresetControls settings={{ ...matching, fontSize: matching.fontSize + 2 }} onChange={onChange} />);
+    expect(select).toHaveDisplayValue("Choose a preset…");
+    fireEvent.change(select, { target: { value: large.id } });
+    expect(onChange).toHaveBeenCalledTimes(2);
+  });
+
+  it("hides Rename/Delete when a custom preset no longer matches", () => {
+    const onChange = vi.fn();
+    const { rerender } = render(<PresetControls settings={DEFAULT_SETTINGS} onChange={onChange} />);
+    save("Mine");
+    expect(screen.getByRole("button", { name: "Delete" })).toBeInTheDocument();
+    rerender(<PresetControls settings={{ ...DEFAULT_SETTINGS, fontSize: DEFAULT_SETTINGS.fontSize + 3 }} onChange={onChange} />);
+    expect(screen.queryByRole("button", { name: "Delete" })).toBeNull();
+    expect(screen.queryByRole("button", { name: "Rename" })).toBeNull();
+  });
 });
