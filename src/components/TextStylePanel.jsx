@@ -1,5 +1,6 @@
 import { FONT_OPTIONS } from "../lib/fonts.js";
 import { DEFAULT_SETTINGS, TEXT_STYLE_KEYS } from "../lib/settings.js";
+import PresetControls from "./PresetControls.jsx";
 import "./TextStylePanel.css";
 
 const PDF_NOTE = "PDF layout is fixed — these apply to Word and PowerPoint files.";
@@ -16,6 +17,8 @@ export default function TextStylePanel({ settings, onChange, isPdf = false }) {
 
   return (
     <section className="text-style-panel" aria-label="Text style">
+      <PresetControls settings={settings} onChange={onChange} />
+
       <div className="text-style-panel__field">
         <label htmlFor="ts-font">Font</label>
         <select
