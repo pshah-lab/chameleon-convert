@@ -10,7 +10,16 @@
   box-shadow: 0 12px 34px rgba(0, 0, 0, 0.38);
   margin: 24px auto 42px;
   padding: 2rem;
-  max-width: 760px;
+  font-family: var(--viewer-font-family, inherit);
+  line-height: var(--viewer-line-height, 1.6);
+  max-width: var(--viewer-text-width, 760px);
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.document-panel p,
+.document-panel li {
+  margin-block: 0 var(--viewer-paragraph-spacing, 1em);
 }
 
 .pptx-slide {

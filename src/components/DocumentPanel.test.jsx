@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from "@testing-library/react";
+import { render, screen, waitFor, cleanup } from "@testing-library/react";
 import { describe, it, expect } from "vitest";
 import DocumentPanel from "./DocumentPanel";
 import { DEFAULT_SETTINGS } from "../lib/settings.js";
@@ -133,5 +133,34 @@ describe("DocumentPanel", () => {
     expect(panel.style.getPropertyValue("--viewer-text")).toBe("#aabbcc");
     expect(panel.style.getPropertyValue("--viewer-font-size")).toBe("20px");
     expect(panel.style.getPropertyValue("--viewer-contrast")).toBe("120%");
+  });
+  async function renderWith(extra) {
+    const xml =
+      '<w:document xmlns:w="x"><w:body><w:p><w:r><w:t>Body</w:t></w:r></w:p></w:body></w:document>';
+    const file = await makeDocxFile(xml);
+    const { container } = render(
+      <DocumentPanel kind="docx" file={file} settings={{ ...DEFAULT_SETTINGS, ...extra }} />
+    );
+    await waitFor(() => expect(screen.getByText("Body")).toBeInTheDocument());
+    return container.querySelector(".document-panel");
+  }
+
+  it("sets font-family variable from fontFamily", async () => {
+    const panel = await renderWith({ fontFamily: "system-serif" });
+    expect(panel.style.getPropertyValue("--viewer-font-family")).toContain("Georgia");
+  });
+
+  it("sets line-height and paragraph-spacing variables", async () => {
+    const panel = await renderWith({ lineHeight: 1.8, paragraphSpacing: 1.2 });
+    expect(panel.style.getPropertyValue("--viewer-line-height")).toBe("1.8");
+    expect(panel.style.getPropertyValue("--viewer-paragraph-spacing")).toBe("1.2em");
+  });
+
+  it('textWidth 60 yields "60ch" and "full" yields "none"', async () => {
+    const a = await renderWith({ textWidth: 60 });
+    expect(a.style.getPropertyValue("--viewer-text-width")).toBe("60ch");
+    cleanup();
+    const b = await renderWith({ textWidth: "full" });
+    expect(b.style.getPropertyValue("--viewer-text-width")).toBe("none");
   });
 });

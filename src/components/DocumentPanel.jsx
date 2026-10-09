@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { listZipEntryNames, readZipEntryText } from "../lib/zipReader.js";
 import { parseDocxDocument } from "../lib/docxParser.js";
 import { parsePptxPresentation } from "../lib/pptxParser.js";
+import { getFontStack } from "../lib/fonts.js";
 import "./DocumentPanel.css";
 
 export default function DocumentPanel({ kind, file, settings }) {
@@ -140,6 +141,11 @@ function panelProps(settings) {
       "--viewer-text": settings.textColor,
       "--viewer-font-size": `${settings.fontSize}px`,
       "--viewer-contrast": `${settings.contrast}%`,
+      "--viewer-font-family": getFontStack(settings.fontFamily),
+      "--viewer-line-height": String(settings.lineHeight),
+      "--viewer-paragraph-spacing": `${settings.paragraphSpacing}em`,
+      "--viewer-text-width":
+        settings.textWidth === "full" ? "none" : `${settings.textWidth}ch`,
     },
   };
 }
